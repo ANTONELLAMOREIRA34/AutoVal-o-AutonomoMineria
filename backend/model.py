@@ -18,11 +18,13 @@ class CarPricePredictor:
     """
 
     def __init__(self, model_path='models/car_price_model.pkl',
-                 scaler_path='models/scaler.pkl'):
+                 scaler_path='models/scaler.pkl',
+                 features_path='models/feature_names.pkl'):
         self.model = None
         self.scaler = None
         self.model_path = model_path
         self.scaler_path = scaler_path
+        self.features_path = features_path
         self.feature_names = None
         self.metrics = {}
 
@@ -30,19 +32,23 @@ class CarPricePredictor:
         self._load_model()
 
     def _load_model(self):
-        """Cargar modelo y scaler guardados si existen"""
+        """Cargar modelo, scaler y feature_names guardados si existen"""
         try:
             if os.path.exists(self.model_path) and os.path.exists(self.scaler_path):
                 with open(self.model_path, 'rb') as f:
                     self.model = pickle.load(f)
                 with open(self.scaler_path, 'rb') as f:
                     self.scaler = pickle.load(f)
+                # Cargar feature_names si existe
+                if os.path.exists(self.features_path):
+                    with open(self.features_path, 'rb') as f:
+                        self.feature_names = pickle.load(f)
                 print("✓ Modelo y scaler cargados exitosamente")
         except Exception as e:
             print(f"No se pudo cargar el modelo existente: {e}")
 
     def _save_model(self):
-        """Guardar modelo y scaler entrenados"""
+        """Guardar modelo, scaler y feature_names entrenados"""
         try:
             os.makedirs(os.path.dirname(self.model_path), exist_ok=True)
             os.makedirs(os.path.dirname(self.scaler_path), exist_ok=True)
@@ -51,6 +57,9 @@ class CarPricePredictor:
                 pickle.dump(self.model, f)
             with open(self.scaler_path, 'wb') as f:
                 pickle.dump(self.scaler, f)
+            # Guardar feature_names
+            with open(self.features_path, 'wb') as f:
+                pickle.dump(self.feature_names, f)
             print("✓ Modelo y scaler guardados exitosamente")
         except Exception as e:
             print(f"Error al guardar el modelo: {e}")
